@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const sequelize = require("./config/db"); // Database connection import
+const { sequelize } = require("./models");
 
 const app = express();
 
@@ -23,12 +23,12 @@ app.get("/api/health", (req, res) => {
 });
 
 // Protected Route
- app.get("/api/profile", verifyToken, (req, res) => {
-     res.json({
-         success: true,
-         user: req.user
-     });
- });
+app.get("/api/profile", verifyToken, (req, res) => {
+    res.json({
+        success: true,
+        user: req.user
+    });
+});
 
 const PORT = process.env.PORT || 5000;
 
