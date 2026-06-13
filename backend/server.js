@@ -9,10 +9,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// const authRoutes = require("./routes/authRoutes");
-// const verifyToken = require("./middleware/authMiddleware");
+const authRoutes = require("./routes/authRoutes");
+const verifyToken = require("./middleware/authMiddleware");
 
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 
 // Health API
 app.get("/api/health", (req, res) => {
@@ -23,12 +23,12 @@ app.get("/api/health", (req, res) => {
 });
 
 // Protected Route
-// app.get("/api/profile", verifyToken, (req, res) => {
-//     res.json({
-//         success: true,
-//         user: req.user
-//     });
-// });
+ app.get("/api/profile", verifyToken, (req, res) => {
+     res.json({
+         success: true,
+         user: req.user
+     });
+ });
 
 const PORT = process.env.PORT || 5000;
 
