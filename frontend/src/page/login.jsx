@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 
-function Login() {
+function Login({ goSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -9,21 +9,40 @@ function Login() {
 
   const submit = async (e) => {
     e.preventDefault();
+
     setLoading(true);
     setError("");
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password
-      });
 
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
+
+      localStorage.setItem(
+        "accessToken",
+        res.data.accessToken
+      );
+
+      localStorage.setItem(
+        "refreshToken",
+        res.data.refreshToken
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
 
       alert("Login Success");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setError(
+        err.response?.data?.message ||
+          "Login Failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -31,79 +50,109 @@ function Login() {
 
   return (
     <div style={styles.card}>
-      <h2 style={styles.title}>Welcome Back</h2>
-      <p style={styles.subtitle}>Login to your account</p>
+      <h2 style={styles.title}>Login</h2>
+
       <form onSubmit={submit} style={styles.form}>
         <input
           style={styles.input}
-          placeholder="Email"
           type="email"
-          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
         />
+
         <input
           style={styles.input}
           type="password"
           placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
         />
-        {error && <p style={styles.error}>{error}</p>}
-        <button style={styles.button} disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+
+        {error && (
+          <p style={styles.error}>{error}</p>
+        )}
+
+        <button
+          style={styles.button}
+          disabled={loading}
+        >
+          {loading
+            ? "Logging In..."
+            : "Login"}
         </button>
       </form>
+
+      <p style={styles.bottomText}>
+        Don't have an account?
+      </p>
+
+      <button
+        style={styles.linkBtn}
+        onClick={goSignup}
+      >
+        Create New Account
+      </button>
     </div>
   );
 }
 
 const styles = {
   card: {
-    background: "#ffffff",
-    borderRadius: "16px",
-    padding: "40px",
-    width: "100%",
-    maxWidth: "400px",
-    boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+    background: "#d8caca",
+    width: "400px",
+    padding: "35px",
+    borderRadius: "15px",
+    boxShadow:
+      "0 5px 20px rgba(0,0,0,0.1)",
   },
+
   title: {
-    margin: "0 0 6px",
-    fontSize: "24px",
-    fontWeight: "700",
-    color: "#1a1a2e",
+    textAlign: "center",
+    marginBottom: "20px",
   },
-  subtitle: {
-    margin: "0 0 24px",
-    fontSize: "14px",
-    color: "#888",
-  },
+
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "14px",
+    gap: "15px",
   },
+
   input: {
-    padding: "12px 16px",
-    borderRadius: "10px",
-    border: "1.5px solid #e0e0e0",
-    fontSize: "15px",
-    outline: "none",
-    transition: "border 0.2s",
-    color: "#1a1a2e",
+    padding: "12px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
   },
+
   button: {
-    padding: "13px",
-    borderRadius: "10px",
+    padding: "12px",
     border: "none",
-    background: "linear-gradient(135deg, #667eea, #764ba2)",
+    borderRadius: "8px",
+    background: "#667eea",
     color: "#fff",
-    fontSize: "16px",
-    fontWeight: "600",
     cursor: "pointer",
-    marginTop: "6px",
   },
+
   error: {
-    color: "#e74c3c",
-    fontSize: "13px",
-    margin: "0",
+    color: "red",
+    fontSize: "14px",
+  },
+
+  bottomText: {
+    textAlign: "center",
+    marginTop: "20px",
+  },
+
+  linkBtn: {
+    width: "100%",
+    padding: "10px",
+    border: "none",
+    background: "transparent",
+    color: "#667eea",
+    cursor: "pointer",
+    fontWeight: "bold",
   },
 };
 

@@ -1,11 +1,11 @@
-const User = require("../models/User");
+const { User, RefreshToken } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 // Register
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -28,7 +28,8 @@ exports.register = async (req, res) => {
     const user = await User.create({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      role: role || "patient"
     });
 
     const accessToken = jwt.sign(
@@ -43,16 +44,17 @@ exports.register = async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    await RefreshToken.create({
+      token: refreshToken,
+      userEmail: user.email,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
+
     res.status(201).json({
       success: true,
       message: "Registration successful",
       accessToken,
-      refreshToken,
-      user: {
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+      refreshToken
     });
 
   } catch (error) {
@@ -103,16 +105,17 @@ exports.login = async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    await RefreshToken.create({
+      token: refreshToken,
+      userEmail: user.email,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
+
     res.status(200).json({
       success: true,
       message: "Login successful",
       accessToken,
-      refreshToken,
-      user: {
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+      refreshToken
     });
 
   } catch (error) {

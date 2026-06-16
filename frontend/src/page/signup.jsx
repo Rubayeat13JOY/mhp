@@ -1,25 +1,50 @@
 import axios from "axios";
 import { useState } from "react";
 
-function Signup() {
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "patient" });
+function Signup({ goLogin }) {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "patient",
+  });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
+
     setLoading(true);
     setError("");
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", form);
 
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        form
+      );
+
+      localStorage.setItem(
+        "accessToken",
+        res.data.accessToken
+      );
+
+      localStorage.setItem(
+        "refreshToken",
+        res.data.refreshToken
+      );
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify(res.data.user)
+      );
 
       alert("Registration Success");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      setError(
+        err.response?.data?.message ||
+          "Registration Failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -27,92 +52,149 @@ function Signup() {
 
   return (
     <div style={styles.card}>
-      <h2 style={styles.title}>Create Account</h2>
-      <p style={styles.subtitle}>Join the Medical Portal</p>
+      <h2 style={styles.title}>
+        Create Account
+      </h2>
+
       <form onSubmit={submit} style={styles.form}>
         <input
           style={styles.input}
           placeholder="Full Name"
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              name: e.target.value,
+            })
+          }
         />
+
         <input
           style={styles.input}
-          placeholder="Email"
           type="email"
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          placeholder="Email"
+          onChange={(e) =>
+            setForm({
+              ...form,
+              email: e.target.value,
+            })
+          }
         />
+
         <input
           style={styles.input}
           type="password"
           placeholder="Password"
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              password: e.target.value,
+            })
+          }
         />
+
         <select
           style={styles.input}
-          onChange={(e) => setForm({ ...form, role: e.target.value })}
           value={form.role}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              role: e.target.value,
+            })
+          }
         >
-          <option value="patient">Patient</option>
-          <option value="doctor">Doctor</option>
-          <option value="admin">Admin</option>
+          <option value="patient">
+            Patient
+          </option>
+          <option value="doctor">
+            Doctor
+          </option>
+          <option value="admin">
+            Admin
+          </option>
         </select>
-        {error && <p style={styles.error}>{error}</p>}
-        <button style={styles.button} disabled={loading}>
-          {loading ? "Creating account..." : "Sign Up"}
+
+        {error && (
+          <p style={styles.error}>{error}</p>
+        )}
+
+        <button
+          style={styles.button}
+          disabled={loading}
+        >
+          {loading
+            ? "Creating..."
+            : "Sign Up"}
         </button>
       </form>
+
+      <p style={styles.bottomText}>
+        Already have an account?
+      </p>
+
+      <button
+        style={styles.linkBtn}
+        onClick={goLogin}
+      >
+        Login
+      </button>
     </div>
   );
 }
 
 const styles = {
   card: {
-    background: "#ffffff",
-    borderRadius: "16px",
-    padding: "40px",
-    width: "100%",
-    maxWidth: "400px",
-    boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+    background: "#fff",
+    width: "400px",
+    padding: "35px",
+    borderRadius: "15px",
+    boxShadow:
+      "0 5px 20px rgba(0,0,0,0.1)",
   },
+
   title: {
-    margin: "0 0 6px",
-    fontSize: "24px",
-    fontWeight: "700",
-    color: "#1a1a2e",
+    textAlign: "center",
+    marginBottom: "20px",
   },
-  subtitle: {
-    margin: "0 0 24px",
-    fontSize: "14px",
-    color: "#888",
-  },
+
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "14px",
+    gap: "15px",
   },
+
   input: {
-    padding: "12px 16px",
-    borderRadius: "10px",
-    border: "1.5px solid #e0e0e0",
-    fontSize: "15px",
-    outline: "none",
-    color: "#1a1a2e",
+    padding: "12px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
   },
+
   button: {
-    padding: "13px",
-    borderRadius: "10px",
+    padding: "12px",
     border: "none",
-    background: "linear-gradient(135deg, #11998e, #38ef7d)",
+    borderRadius: "8px",
+    background: "#11998e",
     color: "#fff",
-    fontSize: "16px",
-    fontWeight: "600",
     cursor: "pointer",
-    marginTop: "6px",
   },
+
   error: {
-    color: "#e74c3c",
-    fontSize: "13px",
-    margin: "0",
+    color: "red",
+    fontSize: "14px",
+  },
+
+  bottomText: {
+    textAlign: "center",
+    marginTop: "20px",
+  },
+
+  linkBtn: {
+    width: "100%",
+    padding: "10px",
+    border: "none",
+    background: "transparent",
+    color: "#11998e",
+    cursor: "pointer",
+    fontWeight: "bold",
   },
 };
 
