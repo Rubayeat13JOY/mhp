@@ -101,7 +101,7 @@ function Login({ goSignup }) {
 
 const styles = {
   card: {
-    background: "#d8caca",
+    background: "#ffffff",
     width: "400px",
     padding: "35px",
     borderRadius: "15px",

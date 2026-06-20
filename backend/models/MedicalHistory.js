@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
-const Report = sequelize.define("Report", {
-  ReportID: {
+const MedicalHistory = sequelize.define("MedicalHistory", {
+  id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
@@ -11,24 +11,20 @@ const Report = sequelize.define("Report", {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  Type: {
+    type: DataTypes.ENUM(
+      "disease",
+      "surgery",
+      "allergy",
+      "vaccination",
+      "family_history",
+      "chronic_disease"
+    ),
+    allowNull: false
+  },
   Title: {
     type: DataTypes.STRING,
     allowNull: false
-  },
-  Category: {
-    type: DataTypes.ENUM(
-      "blood_test",
-      "xray",
-      "mri",
-      "ultrasound",
-      "urine_test",
-      "other"
-    ),
-    allowNull: true
-  },
-  FileURL: {
-    type: DataTypes.STRING,
-    allowNull: true
   },
   Description: {
     type: DataTypes.TEXT,
@@ -37,7 +33,11 @@ const Report = sequelize.define("Report", {
   Date: {
     type: DataTypes.DATEONLY,
     allowNull: true
+  },
+  FileURL: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 }, { timestamps: false });
 
-module.exports = Report;
+module.exports = MedicalHistory;
