@@ -1,4 +1,7 @@
 const { MedicalHistory, Patient, User } = require("../models");
+const Tesseract = require("tesseract.js");
+const path = require("path");
+const { Op } = require("sequelize");
 
 // Add Medical History
 exports.addHistory = async (req, res) => {
@@ -11,6 +14,12 @@ exports.addHistory = async (req, res) => {
     }
 
     const fileURL = req.file ? `/uploads/${req.file.filename}` : null;
+    let extractedText = null;
+
+    if (req.file && [".jpg", ".jpeg", ".png"].includes(path.extname(req.file.originalname).toLowerCase())) {
+      const result = await Tesseract.recognize(req.file.path, "eng");
+      extractedText = result.data.text;
+    }
 
     const history = await MedicalHistory.create({
       PatientID: patient.PatientID,
@@ -18,7 +27,8 @@ exports.addHistory = async (req, res) => {
       Title: req.body.title,
       Description: req.body.description || null,
       Date: req.body.date || null,
-      FileURL: fileURL
+      FileURL: fileURL,
+      ExtractedText: extractedText
     });
 
     res.status(201).json({
@@ -45,6 +55,49 @@ exports.getHistory = async (req, res) => {
 
     const history = await MedicalHistory.findAll({
       where: { PatientID: patient.PatientID },
+      order: [["Date", "DESC"]]
+    });
+
+    res.status(200).json({ success: true, history });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Search Medical History
+exports.searchHistory = async (req, res) => {
+  try {
+    const user = await User.findOne({ where: { email: req.user.email } });
+    const patient = await Patient.findOne({ where: { UserID: user.id } });
+
+    if (!patient) {
+      return res.status(404).json({ success: false, message: "Patient profile not found" });
+    }
+
+    const { keyword, type, startDate, endDate } = req.query;
+
+    const where = { PatientID: patient.PatientID };
+
+    if (keyword) {
+      where[Op.or] = [
+        { Title: { [Op.like]: `%${keyword}%` } },
+        { Description: { [Op.like]: `%${keyword}%` } },
+        { ExtractedText: { [Op.like]: `%${keyword}%` } }
+      ];
+    }
+
+    if (type) {
+      where.Type = type;
+    }
+
+    if (startDate && endDate) {
+      where.Date = { [Op.between]: [startDate, endDate] };
+    }
+
+    const history = await MedicalHistory.findAll({
+      where,
       order: [["Date", "DESC"]]
     });
 

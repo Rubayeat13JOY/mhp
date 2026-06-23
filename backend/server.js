@@ -16,6 +16,9 @@ const patientRoutes = require("./routes/patientRoutes");
 const prescriptionRoutes = require("./routes/prescriptionRoutes");
 const medicalHistoryRoutes = require("./routes/medicalHistoryRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const recordShareRoutes = require("./routes/recordShareRoutes");
+const doctorRoutes = require("./routes/doctorRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 const verifyToken = require("./middleware/authMiddleware");
 
 app.use("/api/auth", authRoutes);
@@ -23,6 +26,9 @@ app.use("/api/patient", patientRoutes);
 app.use("/api/prescription", prescriptionRoutes);
 app.use("/api/medical-history", medicalHistoryRoutes);
 app.use("/api/report", reportRoutes);
+app.use("/api/record-share", recordShareRoutes);
+app.use("/api/doctor", doctorRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Health API
 app.get("/api/health", (req, res) => {

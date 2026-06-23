@@ -5,11 +5,13 @@ const upload = require("../config/multer");
 const {
   addHistory,
   getHistory,
+  searchHistory,
   deleteHistory
 } = require("../controllers/medicalHistoryController");
 
 router.post("/", verifyToken, upload.single("file"), addHistory);
 router.get("/", verifyToken, getHistory);
+router.get("/search", verifyToken, searchHistory);
 router.delete("/:id", verifyToken, deleteHistory);
 
 module.exports = router;

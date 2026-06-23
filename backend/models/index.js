@@ -9,6 +9,8 @@ const Report = require("./Report");
 const Appointment = require("./Appointment");
 const RefreshToken = require("./RefreshToken");
 const MedicalHistory = require("./MedicalHistory");
+const RecordShare = require("./RecordShare");
+const Notification = require("./Notification");
 
 // Associations
 User.hasOne(Patient, { foreignKey: "UserID" });
@@ -38,6 +40,20 @@ Appointment.belongsTo(Doctor, { foreignKey: "DoctorID" });
 Patient.hasMany(MedicalHistory, { foreignKey: "PatientID" });
 MedicalHistory.belongsTo(Patient, { foreignKey: "PatientID" });
 
+// Many-to-Many: Patient <-> Doctor (via RecordShare)
+Patient.belongsToMany(Doctor, { through: RecordShare, foreignKey: "PatientID" });
+Doctor.belongsToMany(Patient, { through: RecordShare, foreignKey: "DoctorID" });
+
+Patient.hasMany(RecordShare, { foreignKey: "PatientID" });
+RecordShare.belongsTo(Patient, { foreignKey: "PatientID" });
+
+Doctor.hasMany(RecordShare, { foreignKey: "DoctorID" });
+RecordShare.belongsTo(Doctor, { foreignKey: "DoctorID" });
+
+// Notification
+User.hasMany(Notification, { foreignKey: "UserID" });
+Notification.belongsTo(User, { foreignKey: "UserID" });
+
 module.exports = {
   sequelize,
   User,
@@ -48,5 +64,7 @@ module.exports = {
   Report,
   Appointment,
   RefreshToken,
-  MedicalHistory
+  MedicalHistory,
+  RecordShare,
+  Notification
 };

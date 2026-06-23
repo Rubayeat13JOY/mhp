@@ -37,6 +37,10 @@ const MedicalHistory = sequelize.define("MedicalHistory", {
   FileURL: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  ExtractedText: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, { timestamps: false });
 

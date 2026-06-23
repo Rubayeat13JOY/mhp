@@ -5,11 +5,13 @@ const upload = require("../config/multer");
 const {
   uploadPrescription,
   getPrescriptions,
+  searchPrescriptions,
   deletePrescription
 } = require("../controllers/prescriptionController");
 
 router.post("/upload", verifyToken, upload.single("file"), uploadPrescription);
 router.get("/", verifyToken, getPrescriptions);
+router.get("/search", verifyToken, searchPrescriptions);
 router.delete("/:id", verifyToken, deletePrescription);
 
 module.exports = router;

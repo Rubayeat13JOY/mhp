@@ -30,6 +30,10 @@ const Report = sequelize.define("Report", {
     type: DataTypes.STRING,
     allowNull: true
   },
+  ExtractedText: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
   Description: {
     type: DataTypes.TEXT,
     allowNull: true

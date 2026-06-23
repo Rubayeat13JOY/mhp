@@ -1,6 +1,7 @@
 const { Prescription, Patient, User } = require("../models");
 const Tesseract = require("tesseract.js");
 const path = require("path");
+const { Op } = require("sequelize");
 
 // Upload Prescription
 exports.uploadPrescription = async (req, res) => {
@@ -56,6 +57,38 @@ exports.getPrescriptions = async (req, res) => {
     const prescriptions = await Prescription.findAll({
       where: { PatientID: patient.PatientID }
     });
+
+    res.status(200).json({ success: true, prescriptions });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Search Prescriptions
+exports.searchPrescriptions = async (req, res) => {
+  try {
+    const user = await User.findOne({ where: { email: req.user.email } });
+    const patient = await Patient.findOne({ where: { UserID: user.id } });
+
+    if (!patient) {
+      return res.status(404).json({ success: false, message: "Patient profile not found" });
+    }
+
+    const { keyword, startDate, endDate } = req.query;
+
+    const where = { PatientID: patient.PatientID };
+
+    if (keyword) {
+      where[Op.or] = [
+        { MedicineName: { [Op.like]: `%${keyword}%` } },
+        { Notes: { [Op.like]: `%${keyword}%` } },
+        { ExtractedText: { [Op.like]: `%${keyword}%` } }
+      ];
+    }
+
+    const prescriptions = await Prescription.findAll({ where });
 
     res.status(200).json({ success: true, prescriptions });
 
