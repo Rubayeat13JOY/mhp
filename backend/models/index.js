@@ -11,6 +11,7 @@ const RefreshToken = require("./RefreshToken");
 const MedicalHistory = require("./MedicalHistory");
 const RecordShare = require("./RecordShare");
 const Notification = require("./Notification");
+const ActivityLog = require("./ActivityLog");
 
 // Associations
 User.hasOne(Patient, { foreignKey: "UserID" });
@@ -54,6 +55,10 @@ RecordShare.belongsTo(Doctor, { foreignKey: "DoctorID" });
 User.hasMany(Notification, { foreignKey: "UserID" });
 Notification.belongsTo(User, { foreignKey: "UserID" });
 
+// Activity Log
+User.hasMany(ActivityLog, { foreignKey: "UserID" });
+ActivityLog.belongsTo(User, { foreignKey: "UserID" });
+
 module.exports = {
   sequelize,
   User,
@@ -66,5 +71,6 @@ module.exports = {
   RefreshToken,
   MedicalHistory,
   RecordShare,
-  Notification
+  Notification,
+  ActivityLog
 };

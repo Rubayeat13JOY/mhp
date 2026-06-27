@@ -19,6 +19,7 @@ const reportRoutes = require("./routes/reportRoutes");
 const recordShareRoutes = require("./routes/recordShareRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const verifyToken = require("./middleware/authMiddleware");
 
 app.use("/api/auth", authRoutes);
@@ -29,6 +30,7 @@ app.use("/api/report", reportRoutes);
 app.use("/api/record-share", recordShareRoutes);
 app.use("/api/doctor", doctorRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health API
 app.get("/api/health", (req, res) => {

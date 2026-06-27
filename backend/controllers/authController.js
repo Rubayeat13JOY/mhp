@@ -1,6 +1,7 @@
 const { User, RefreshToken } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { logActivity } = require("./activityLogController");
 
 // Register
 exports.register = async (req, res) => {
@@ -11,6 +12,14 @@ exports.register = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "All fields are required"
+      });
+    }
+
+    // Block admin registration through the public API
+    if (role === "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Admin accounts cannot be created through registration"
       });
     }
 
@@ -29,7 +38,7 @@ exports.register = async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: role || "patient"
+      role: role === "doctor" ? "doctor" : "patient"
     });
 
     const accessToken = jwt.sign(
@@ -50,11 +59,14 @@ exports.register = async (req, res) => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     });
 
+    await logActivity(user.id, "register", `New ${user.role} account created: ${user.email}`, "success", req.ip);
+
     res.status(201).json({
       success: true,
       message: "Registration successful",
       accessToken,
-      refreshToken
+      refreshToken,
+      role: user.role
     });
 
   } catch (error) {
@@ -78,6 +90,7 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
+      await logActivity(null, "login", `Failed login attempt for unknown email: ${email}`, "failed", req.ip);
       return res.status(404).json({
         success: false,
         message: "User not found"
@@ -87,6 +100,7 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
+      await logActivity(user.id, "login", `Failed login attempt: wrong password`, "failed", req.ip);
       return res.status(401).json({
         success: false,
         message: "Invalid password"
@@ -111,11 +125,14 @@ exports.login = async (req, res) => {
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
     });
 
+    await logActivity(user.id, "login", `${user.role} logged in: ${user.email}`, "success", req.ip);
+
     res.status(200).json({
       success: true,
       message: "Login successful",
       accessToken,
-      refreshToken
+      refreshToken,
+      role: user.role
     });
 
   } catch (error) {

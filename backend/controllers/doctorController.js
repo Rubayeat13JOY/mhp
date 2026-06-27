@@ -1,5 +1,22 @@
 const { Doctor, User, Patient, Prescription, MedicalHistory, Report, RecordShare } = require("../models");
 const { createNotification } = require("./notificationController");
+const Tesseract = require("tesseract.js");
+const path = require("path");
+
+// Get all doctors (for patients to browse and share access with)
+exports.getAllDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.findAll({
+      include: [{ model: User, attributes: ["name", "email"] }]
+    });
+
+    res.status(200).json({ success: true, doctors });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 // Get Doctor Profile
 exports.getDoctorProfile = async (req, res) => {
@@ -12,7 +29,10 @@ exports.getDoctorProfile = async (req, res) => {
       profile: {
         name: user.name,
         email: user.email,
-        specialization: doctor?.Specialization || null
+        specialization: doctor?.Specialization || null,
+        phone: doctor?.Phone || null,
+        licenseNumber: doctor?.LicenseNumber || null,
+        chamberAddress: doctor?.ChamberAddress || null
       }
     });
   } catch (error) {
@@ -28,13 +48,17 @@ exports.updateDoctorProfile = async (req, res) => {
 
     let doctor = await Doctor.findOne({ where: { UserID: user.id } });
 
+    const data = {
+      Specialization: req.body.specialization,
+      Phone: req.body.phone,
+      LicenseNumber: req.body.licenseNumber,
+      ChamberAddress: req.body.chamberAddress
+    };
+
     if (doctor) {
-      await doctor.update({ Specialization: req.body.specialization });
+      await doctor.update(data);
     } else {
-      doctor = await Doctor.create({
-        UserID: user.id,
-        Specialization: req.body.specialization
-      });
+      doctor = await Doctor.create({ UserID: user.id, ...data });
     }
 
     res.status(200).json({ success: true, message: "Profile updated", doctor });
@@ -92,7 +116,7 @@ exports.getPatientPrescriptions = async (req, res) => {
   }
 };
 
-// Doctor creates/updates a prescription for a patient (only if edit permission)
+// Doctor creates a prescription for a patient (text + optional file with OCR) - only if edit permission
 exports.createPrescriptionForPatient = async (req, res) => {
   try {
     const { patientId } = req.params;
@@ -111,12 +135,22 @@ exports.createPrescriptionForPatient = async (req, res) => {
       return res.status(403).json({ success: false, message: "View-only access. Cannot edit." });
     }
 
+    const fileURL = req.file ? `/uploads/${req.file.filename}` : null;
+    let extractedText = null;
+
+    if (req.file && [".jpg", ".jpeg", ".png"].includes(path.extname(req.file.originalname).toLowerCase())) {
+      const result = await Tesseract.recognize(req.file.path, "eng");
+      extractedText = result.data.text;
+    }
+
     const prescription = await Prescription.create({
       PatientID: patientId,
       DoctorID: doctor.DoctorID,
-      MedicineName: req.body.medicineName,
-      Dosage: req.body.dosage,
-      Notes: req.body.notes,
+      MedicineName: req.body.medicineName || null,
+      Dosage: req.body.dosage || null,
+      Notes: req.body.notes || null,
+      FileURL: fileURL,
+      ExtractedText: extractedText,
       UploadedBy: "doctor"
     });
 
@@ -125,7 +159,7 @@ exports.createPrescriptionForPatient = async (req, res) => {
     if (patient) {
       await createNotification(
         patient.UserID,
-        `Dr. ${user.name} added a new prescription for you: ${req.body.medicineName}`,
+        `Dr. ${user.name} added a new prescription for you${req.body.medicineName ? ": " + req.body.medicineName : ""}.`,
         "prescription"
       );
     }
