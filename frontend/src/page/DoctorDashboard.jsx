@@ -244,7 +244,7 @@ function DoctorDashboard() {
                       <button style={styles.saveBtn} onClick={addPrescriptionForPatient}>Add</button>
                     </div>
                     <p style={{ ...styles.emptyText, textAlign: "left", padding: "8px 0 0" }}>
-                      Upload a JPG/PNG image and we'll automatically extract the text (OCR). The patient will be notified.
+                      Upload a JPG/PNG image and we'll automatically extract the text . The patient will be notified.
                     </p>
                   </div>
                 )}
@@ -265,7 +265,7 @@ function DoctorDashboard() {
                           {p.ExtractedText && (
                             <details style={{ marginTop: "6px" }}>
                               <summary style={{ cursor: "pointer", fontSize: "12px", color: "#4a90e2" }}>
-                                View extracted text (OCR)
+                                View text 
                               </summary>
                               <p style={{ margin: "6px 0 0", color: "#666", fontSize: "12px", whiteSpace: "pre-wrap" }}>
                                 {p.ExtractedText}

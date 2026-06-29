@@ -1,9 +1,18 @@
 import { useState } from "react";
 import Login from "./page/login";
 import Signup from "./page/signup";
+import PatientDashboard from "./page/PatientDashboard";
+import DoctorDashboard from "./page/DoctorDashboard";
+import AdminDashboard from "./page/AdminDashboard";
 
 function App() {
   const [showLogin, setShowLogin] = useState(true);
+
+  const role = localStorage.getItem("role");
+
+  if (role === "patient") return <PatientDashboard />;
+  if (role === "doctor") return <DoctorDashboard />;
+  if (role === "admin") return <AdminDashboard />;
 
   return (
     <div

@@ -24,22 +24,14 @@ function Signup({ goLogin }) {
         form
       );
 
-      localStorage.setItem(
-        "accessToken",
-        res.data.accessToken
-      );
+      localStorage.setItem("accessToken", res.data.accessToken);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
+      localStorage.setItem("role", res.data.role);
 
-      localStorage.setItem(
-        "refreshToken",
-        res.data.refreshToken
-      );
+      if (res.data.role === "patient") window.location.href = "/patient-dashboard";
+      else if (res.data.role === "doctor") window.location.href = "/doctor-dashboard";
+      else if (res.data.role === "admin") window.location.href = "/admin-dashboard";
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify(res.data.user)
-      );
-
-      alert("Registration Success");
     } catch (err) {
       setError(
         err.response?.data?.message ||
